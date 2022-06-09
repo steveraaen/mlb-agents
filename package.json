@@ -1,0 +1,16 @@
+{
+  "name": "new_milb",
+  "version": "1.0.0",
+  "description": "",
+  "main": "scraper.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.0.1",
+    "mysql": "^2.18.1",
+    "puppeteer": "^13.5.2"
+  }
+}
