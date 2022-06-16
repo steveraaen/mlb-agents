@@ -1,31 +1,11 @@
 
-// mysql://rvd8pk44d3y429e3:tqqwr7za0fczmnex@gmgcjwawatv599gq.cbetxkdyhwsb.us-east-1.rds.amazonaws.com:3306/vtox5woubolsge6o
-require('dotenv').config()
 const puppeteer = require('puppeteer');
-const mysql = require('mysql');
-const teams = require('./teams.json');
-
-var connection = mysql.createConnection({
-    host: process.env.DB_HOST,
-    port: '3306',
-    user: process.env.DB_USER,
-    password: process.env.DB_PW,
-    database: process.env.DB_NAME,
-    multipleStatements: true
-});
-
-let team_urls = []
-const team_str1 = 'https://www.baseball-reference.com/teams/'
-const team_str2 = '/2022.shtml'
-for (let i = 0; i < teams.length; i++) {
-	let curTeam = team_str1 + teams[i].majteam + team_str2
-	team_urls.push(curTeam)
-}
+const connection = require('./dbConnect.js');
 
 (async () => {
-    connection.query(`TRUNCATE TABLE secondLatestPitching;
-        INSERT INTO secondLatestPitching SELECT * FROM latestPitching;
-        TRUNCATE TABLE latestPitching;`)
+    connection.query(`TRUNCATE TABLE secondLatestBatting;
+        INSERT INTO secondLatestBatting SELECT * FROM latestBatting;
+        TRUNCATE TABLE latestBatting;`)
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
     await page.goto('https://www.baseball-reference.com/leagues/MLB/2022-standard-batting.shtml', { waitUntil: 'networkidle2' })
@@ -52,19 +32,28 @@ for (let i = 0; i < teams.length; i++) {
                 CS: item.querySelector('td:nth-child(16)').innerText,
                 BB: item.querySelector('td:nth-child(17)').innerText,
                 SO: item.querySelector('td:nth-child(18)').innerText,
+                BA: item.querySelector('td:nth-child(19)').innerText,
+                OB: item.querySelector('td:nth-child(20)').innerText,
+                SLG: item.querySelector('td:nth-child(21)').innerText,
+                OPS: item.querySelector('td:nth-child(22)').innerText,
+                OPSP: item.querySelector('td:nth-child(23)').innerText,
                 TB: item.querySelector('td:nth-child(24)').innerText,
                 GDP: item.querySelector('td:nth-child(25)').innerText,
                 HBP: item.querySelector('td:nth-child(26)').innerText,
                 SH: item.querySelector('td:nth-child(27)').innerText,
                 SF: item.querySelector('td:nth-child(28)').innerText,
-                IBB: item.querySelector('td:nth-child(29)').innerText
+                IBB: item.querySelector('td:nth-child(29)').innerText,
+                POS: item.querySelector('td:nth-child(30)').innerText
             });
         });
-
        return results 
     })
-console.log(eachPlayer.length)
-
+    for (let i = 0; i < eachPlayer.length; i++) {
+    connection.query(`INSERT INTO latestBatting(playerName,playerID, age,tm,lg,G,PA,AB,R,H,B2,B3,HR,RBI,SB,CS,BB,SO,BA,OB,SLG,OPS,OPSP,TB,GDP,HBP,SH,SF,IBB,POS)VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`, [eachPlayer[i].playerName,eachPlayer[i].playerID, eachPlayer[i].age, eachPlayer[i].tm, eachPlayer[i].lg, eachPlayer[i].G, eachPlayer[i].PA, eachPlayer[i].AB, eachPlayer[i].R, eachPlayer[i].H, eachPlayer[i].B2, eachPlayer[i].B3, eachPlayer[i].HR, eachPlayer[i].RBI, eachPlayer[i].SB, eachPlayer[i].CS, eachPlayer[i].BB, eachPlayer[i].SO, eachPlayer[i].BA, eachPlayer[i].OB, eachPlayer[i].SLG, eachPlayer[i].OPS, eachPlayer[i].OPSP, eachPlayer[i].TB, eachPlayer[i].GDP, eachPlayer[i].HBP, eachPlayer[i].SH, eachPlayer[i].SF, eachPlayer[i].IBB, eachPlayer[i].POS], function (error) {
+          if (error) throw error;
+              console.log(`record added to db`)       
+       });
+    }
+    console.log(typeof eachPlayer[2].BA)
 await browser.close()
-
 })();
