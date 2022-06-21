@@ -14,7 +14,7 @@ const connection = require('./dbConnect.js');
         let items = document.querySelectorAll('#players_standard_batting tr.full_table');
         items.forEach((item) => {
             results.push({
-                playerName: item.querySelector('td').innerText,
+                playerName: item.querySelector('td').innerText.replace('*', '').replace('#', ''),
                 playerID: item.querySelector('td').getAttribute('data-append-csv'),
                 age: item.querySelector('td:nth-child(3)').innerText,
                 tm: item.querySelector('td:nth-child(4)').innerText,
@@ -49,11 +49,11 @@ const connection = require('./dbConnect.js');
        return results 
     })
     for (let i = 0; i < eachPlayer.length; i++) {
+        console.log(eachPlayer[i].playerName)
     connection.query(`INSERT INTO latestBatting(playerName,playerID, age,tm,lg,G,PA,AB,R,H,B2,B3,HR,RBI,SB,CS,BB,SO,BA,OB,SLG,OPS,OPSP,TB,GDP,HBP,SH,SF,IBB,POS)VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`, [eachPlayer[i].playerName,eachPlayer[i].playerID, eachPlayer[i].age, eachPlayer[i].tm, eachPlayer[i].lg, eachPlayer[i].G, eachPlayer[i].PA, eachPlayer[i].AB, eachPlayer[i].R, eachPlayer[i].H, eachPlayer[i].B2, eachPlayer[i].B3, eachPlayer[i].HR, eachPlayer[i].RBI, eachPlayer[i].SB, eachPlayer[i].CS, eachPlayer[i].BB, eachPlayer[i].SO, eachPlayer[i].BA, eachPlayer[i].OB, eachPlayer[i].SLG, eachPlayer[i].OPS, eachPlayer[i].OPSP, eachPlayer[i].TB, eachPlayer[i].GDP, eachPlayer[i].HBP, eachPlayer[i].SH, eachPlayer[i].SF, eachPlayer[i].IBB, eachPlayer[i].POS], function (error) {
           if (error) throw error;
-              console.log(`record added to db`)       
+              console.log(`record ${i} added to db`)       
        });
     }
-    console.log(typeof eachPlayer[2].BA)
 await browser.close()
 })();

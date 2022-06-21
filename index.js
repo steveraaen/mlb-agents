@@ -3,6 +3,7 @@ const express = require('express')
 const path = require('path')
 const mysql = require('mysql')
 const connection = require('./scrapers/dbConnect.js');
+// const get = require('./scrapers/traderumors.js');
 const app = express()
 // console.log(connection)
 app.use(express.static(path.join(__dirname, 'client/build')));
@@ -24,7 +25,8 @@ app.get('/api/contracts', function(req, res) {
     if (error) throw error;
    });
  });
-// console.log(dta)
+
+
 const port = process.env.PORT || 5001;
 app.listen(port);
 console.log(`Listening on ${port}`);

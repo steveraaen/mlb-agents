@@ -4,48 +4,51 @@ const Bluebird = require('bluebird');
 Bluebird.promisifyAll(connection);
 Bluebird.promisifyAll(puppeteer);
 
-metadata = []
-connection.queryAsync(`SELECT DISTINCT PlayerId FROM latestBatting;`).then(async (rows) =>{
-const tst =  rows.map((row) => {
-	return `https://www.baseball-reference.com/players/${row.PlayerId[0]}/${row.PlayerId}.shtml`
-});
-(async () => {
-		for(let i = 0; i < tst.length; i++) {
-		let metaObj = {}
-		metaObj.playerId = tst[i].split('/')[5].split('.')[0]		// connection.query('INSERT INTO playerMeta(id)VALUES(?)', metaObj.playerId)
-	    const browser = await puppeteer.launch();
-	    const page = await browser.newPage();
-	    await page.goto(tst[i], { waitUntil: 'networkidle2' })
-	    await page.waitForTimeout();
-	    let playerMeta =  await page.evaluate(() => {
-	        let results = [];
-	        let items = document.querySelectorAll("#meta p")
-	        // console.log(items)
-	        items.forEach((item) => {
-	        	results.push(item.innerText)
-	        })	       
-	        return results
-	    })	    
-	    for(let j = 0; j< playerMeta.length; j++) {
-	    	if (playerMeta[j].match('2022 Contract Status')) {
-	    		metaObj.ct = playerMeta[j].split(":")[1].trim()
-	    	}    	
-	    	if (playerMeta[j].match('Agents')) {
-	    		metaObj.agent = playerMeta[j].split(":")[1].split('•')[0].trim()
-	    	}
-	    	if (playerMeta[j].match(/^School/)) {
-	    		metaObj.college = playerMeta[j].split(':')[1].trim()
-	    	}
-	    	if (playerMeta[j].match(/\sSchool/)) {
-	    		metaObj.hs = playerMeta[j].split(':')[1].trim()
-	    	}
-	    }
-	    // connection.query('INSERT INTO playerMeta(id, contract, agent, hs, college)VALUES(?,?,?,?,?)', [metaObj.playerId, metaObj.ct, metaObj.agent, metaObj.hs, metaObj.college])
-	    console.log(metaObj)
-	    metadata.push(metaObj)
-	    await browser.close()
+connection.queryAsync(`SELECT PlayerId, contract from meta;`).then(async (rows) =>{
+const M = 1000000
+const k = 1000
+let idx = 0
+	for (let i = 0; i < rows.length; i++) {
+
+		let metaObj = {}		
+		if (rows[i].contract.match(/^Sign/)) { 
+			metaObj.k_end = rows[i].contract.slice(12, 16)
+			let k_tmpa = rows[i].contract.split('\,')[1]
+			metaObj.k_yrs = /[0-9]{1,2}/.exec(k_tmpa)[0]
+			metaObj.k_val = /\$(.+?)([M|k])/.exec(k_tmpa)[1]
+
+			if(/\$(.+?)([M|k])/.exec(k_tmpa)[2] === 'M'){
+				metaObj.k_den = 1000000
+			}
+			else {
+				metaObj.k_den = 1000
+			 }
+			metaObj.playerId = rows[i].PlayerId
+			metaObj.k_start = k_tmpa.split('(')[1].slice(0,2)
+			metaObj.k_yrs = parseInt(metaObj.k_yrs)
+			metaObj.k_val = parseFloat(metaObj.k_val)
+			metaObj.k_start = parseInt(metaObj.k_start)
+			metaObj.k_end =  metaObj.k_start + metaObj.k_yrs -1
+			metaObj.k_tot_val = metaObj.k_val * metaObj.k_den
+			metaObj.k_ann_val = parseFloat(metaObj.k_tot_val / metaObj.k_yrs).toFixed(2)
+			console.log(metaObj.k_val)
+		idx += 1
+		console.log(idx)
+		var qry = `UPDATE meta SET k_ann_val = ?, k_tot_val = ?, k_yrs = ?, k_start = ?, k_end = ? WHERE playerId = ?`
+		var dta = [metaObj.k_ann_val, metaObj.k_tot_val, metaObj.k_yrs, metaObj.k_start , metaObj.k_end, metaObj.playerId]
+		connection.query(qry, dta, function(error){
+		if (error) throw error;
+              console.log(`record added to db`)
+		})
 		}
-	})()
+		else{
+			metaObj.k_note = rows[i].contract
+		}
+	}
+console.log(rows.length)
 });
+
+
+
 
 

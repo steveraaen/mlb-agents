@@ -1,22 +1,27 @@
 const Bluebird = require('Bluebird')
 const puppeteer = require('puppeteer');
 const connection = require('./dbConnect.js');
+const chalk = require('chalk')
 Bluebird.promisifyAll(connection);
 Bluebird.promisifyAll(puppeteer);
 
 const getAllPlayers = ['latestBatting', 'latestPitching']
+	
 
-for (let z = 0; z < getAllPlayers.length; z++) {
-
-	connection.queryAsync(`SELECT DISTINCT PlayerId FROM ${getAllPlayers[z]} ;`).then(async (rows) =>{
-	const tst =  rows.map((row) => {
-		return `https://www.baseball-reference.com/players/${row.PlayerId[0]}/${row.PlayerId}.shtml`
-	});
+	connection.queryAsync(`SELECT DISTINCT PlayerId FROM latestPitching ;`).then(async (rows) =>{
+	// ------------------ Scrape all batters -----------------------------
+	// const tst =  rows.map((row) => {
+	// 	return `https://www.baseball-reference.com/players/${row.PlayerId[0]}/${row.PlayerId}.shtml`
+	// });
+		// ------------------ Scrape selected batters -----------------------------
+	var tst = []
 	var metadata = [];
 	(async () => {
+		let count = 0
 			for(let i = 0; i < tst.length; i++) {
+			count += 1
 			let metaObj = {}
-			metaObj.playerId = tst[i].split('/')[5].split('.')[0]		// connection.query('INSERT INTO playerMeta(id)VALUES(?)', metaObj.playerId)
+			metaObj.playerId = tst[i].split('/')[5].split('.')[0]	
 		    const browser = await puppeteer.launch();
 		    const page = await browser.newPage();
 		    await page.goto(tst[i], { waitUntil: 'networkidle2' });
@@ -44,14 +49,24 @@ for (let z = 0; z < getAllPlayers.length; z++) {
 		    		metaObj.hs = playerMeta[j].split(':')[1].trim()
 		    	}
 		    }
-		    connection.query('INSERT INTO playerMeta(playerId, contract, agent, hs, college)VALUES(?,?,?,?,?)', [metaObj.playerId, metaObj.ct, metaObj.agent, metaObj.hs, metaObj.college])
 		    console.log(metaObj)
+		    connection.query('INSERT INTO meta(playerId, contract, agent, hs, college)VALUES(?,?,?,?,?)', [metaObj.playerId, metaObj.ct, metaObj.agent, metaObj.hs, metaObj.college], function(error){
+		    	if(error) throw error;
+		    	console.log(chalk.yellow(`${count}) Records Added`))
+		    })
+		    // if(z === 0){
+		    // 	console.log(`Batting Record ${chalk.blue(i)}added`)
+		    // }
+		    // else if (z === 1){
+		    // 	console.log(`Pitching Record ${chalk.red(i)}added`)
+
+		    // }
 		    metadata.push(metaObj)
 		    await browser.close()
 			}
 		})()
 	});
-}
+
 
 
 
