@@ -8,24 +8,25 @@ const app = express()
 // console.log(connection)
 app.use(express.static(path.join(__dirname, 'client/build')));
 
-app.get('/api/latest-batting', function(req, res) {
-  connection.query('select * from latestBatting', function (error, results, fields) {
+app.get('/api/bigagents', function(req, res) {
+  connection.query(`select distinct agent, count(playerId), avg(k_ann_val), avg(k_yrs) 
+                    from meta 
+                    where agent is not null
+                    and k_ann_val is not null
+                    group by agent 
+                    order by count(playerId) desc`, function (error, results, fields) {
   	res.json(results)
     // connection.release();
     if (error) throw error;
    });
  });
 
-app.get('/api/contracts', function(req, res) {
-  connection.query('select contract from playerMeta', function (error, results, fields) {
-    // res.json(results)
-    var ks = res.json(results)
-    console.log(ks)
-
+app.get('/api/allagents', function(req, res) {
+  connection.query('select distinct agent from meta where agent is not null order by agent', function (error, results, fields) {
+    res.json(results)
     if (error) throw error;
    });
  });
-
 
 const port = process.env.PORT || 5001;
 app.listen(port);
