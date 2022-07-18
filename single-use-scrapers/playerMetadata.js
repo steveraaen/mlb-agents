@@ -1,24 +1,25 @@
 const Bluebird = require('Bluebird')
 const puppeteer = require('puppeteer');
 const connection = require('./dbConnect.js');
+// const parseContract = require('./contract-parser.js');
 const chalk = require('chalk')
 Bluebird.promisifyAll(connection);
 Bluebird.promisifyAll(puppeteer);
 
 const getAllPlayers = ['latestBatting', 'latestPitching']
 	
-
-	connection.queryAsync(`SELECT DISTINCT PlayerId FROM latestPitching ;`).then(async (rows) =>{
-	// ------------------ Scrape all batters -----------------------------
-	// const tst =  rows.map((row) => {
-	// 	return `https://www.baseball-reference.com/players/${row.PlayerId[0]}/${row.PlayerId}.shtml`
-	// });
+	connection.queryAsync(`select latestBatting.playerId from latestBatting
+	WHERE latestBatting.playerId NOT IN (SELECT playerId from meta)`).then(async (rows) =>{
+//	------------------ Scrape all batters -----------------------------
+	const tst =  rows.map((row) => {
+		return `https://www.baseball-reference.com/players/${row.PlayerId[0]}/${row.PlayerId}.shtml`
+	});
 		// ------------------ Scrape selected batters -----------------------------
-	var tst = []
+	// var tst = []
 	var metadata = [];
 	(async () => {
 		let count = 0
-			for(let i = 0; i < tst.length; i++) {
+			for(let i = 111; i < tst.length; i++) {
 			count += 1
 			let metaObj = {}
 			metaObj.playerId = tst[i].split('/')[5].split('.')[0]	
@@ -50,10 +51,10 @@ const getAllPlayers = ['latestBatting', 'latestPitching']
 		    	}
 		    }
 		    console.log(metaObj)
-		    connection.query('INSERT INTO meta(playerId, contract, agent, hs, college)VALUES(?,?,?,?,?)', [metaObj.playerId, metaObj.ct, metaObj.agent, metaObj.hs, metaObj.college], function(error){
-		    	if(error) throw error;
-		    	console.log(chalk.yellow(`${count}) Records Added`))
-		    })
+		    // connection.query('INSERT INTO autometa(playerId, contract, agent, hs, college)VALUES(?,?,?,?,?)', [metaObj.playerId, metaObj.ct, metaObj.agent, metaObj.hs, metaObj.college], function(error){
+		    // 	if(error) throw error;
+		    // 	console.log(chalk.yellow(`${count}) Records Added`))
+		    // })
 		    // if(z === 0){
 		    // 	console.log(`Batting Record ${chalk.blue(i)}added`)
 		    // }

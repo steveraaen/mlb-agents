@@ -4,7 +4,7 @@ const Bluebird = require('bluebird');
 Bluebird.promisifyAll(connection);
 Bluebird.promisifyAll(puppeteer);
 
-connection.queryAsync(`SELECT PlayerId, contract from meta;`).then(async (rows) =>{
+connection.queryAsync(`SELECT PlayerId, contract from autometa;`).then(async (rows) =>{
 const M = 1000000
 const k = 1000
 let idx = 0
@@ -34,7 +34,7 @@ let idx = 0
 			console.log(metaObj.k_val)
 		idx += 1
 		console.log(idx)
-		var qry = `UPDATE meta SET k_ann_val = ?, k_tot_val = ?, k_yrs = ?, k_start = ?, k_end = ? WHERE playerId = ?`
+		var qry = `UPDATE autometa SET k_ann_val = ?, k_tot_val = ?, k_yrs = ?, k_start = ?, k_end = ? WHERE playerId = ?`
 		var dta = [metaObj.k_ann_val, metaObj.k_tot_val, metaObj.k_yrs, metaObj.k_start , metaObj.k_end, metaObj.playerId]
 		connection.query(qry, dta, function(error){
 		if (error) throw error;

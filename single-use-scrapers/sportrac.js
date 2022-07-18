@@ -32,11 +32,11 @@ Bluebird.promisifyAll(puppeteer);
 	    	if(playerMeta[i].match(/\$[0-9]{1,3}/) != null){
 	    		salaryObj.salary = playerMeta[i].match(/\$[0-9]{1,3}\,[0-9]{1,3}(\,[0-9]{1,3})?/)[0].replace("$", "").replaceAll(',', '')
 	    	}
-	    	
-	    	connection.query('INSERT INTO sportrac_sals (playerName, playerPos, playerSalary)VALUES(?,?,?)', [salaryObj.name, salaryObj.pos, salaryObj.salary], function(error){
-	    		if(error) throw error;
-	    		console.log('Sportrac table updated')
-	    	})
+	    	console.log(salaryObj)
+	    	// connection.query('INSERT INTO sportrac_sals (playerName, playerPos, playerSalary)VALUES(?,?,?)', [salaryObj.name, salaryObj.pos, salaryObj.salary], function(error){
+	    	// 	if(error) throw error;
+	    	// 	console.log('Sportrac table updated')
+	    	// })
 	    }
 	    await browser.close()	
 	})()
