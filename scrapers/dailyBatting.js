@@ -1,4 +1,3 @@
-
 const puppeteer = require('puppeteer');
 const connection = require('./dbConnect.js');
 
@@ -42,15 +41,14 @@ const connection = require('./dbConnect.js');
                 HBP: item.querySelector('td:nth-child(26)').innerText,
                 SH: item.querySelector('td:nth-child(27)').innerText,
                 SF: item.querySelector('td:nth-child(28)').innerText,
-                IBB: item.querySelector('td:nth-child(29)').innerText,
-                POS: item.querySelector('td:nth-child(30)').innerText
+                IBB: item.querySelector('td:nth-child(29)').innerText
             });
         });
        return results 
     })
     for (let i = 0; i < eachPlayer.length; i++) {
         console.log(eachPlayer[i].playerName)
-    connection.query(`INSERT INTO latestBatting(playerName,playerID, age,tm,lg,G,PA,AB,R,H,B2,B3,HR,RBI,SB,CS,BB,SO,BA,OB,SLG,OPS,OPSP,TB,GDP,HBP,SH,SF,IBB,POS)VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`, [eachPlayer[i].playerName,eachPlayer[i].playerID, eachPlayer[i].age, eachPlayer[i].tm, eachPlayer[i].lg, eachPlayer[i].G, eachPlayer[i].PA, eachPlayer[i].AB, eachPlayer[i].R, eachPlayer[i].H, eachPlayer[i].B2, eachPlayer[i].B3, eachPlayer[i].HR, eachPlayer[i].RBI, eachPlayer[i].SB, eachPlayer[i].CS, eachPlayer[i].BB, eachPlayer[i].SO, eachPlayer[i].BA, eachPlayer[i].OB, eachPlayer[i].SLG, eachPlayer[i].OPS, eachPlayer[i].OPSP, eachPlayer[i].TB, eachPlayer[i].GDP, eachPlayer[i].HBP, eachPlayer[i].SH, eachPlayer[i].SF, eachPlayer[i].IBB, eachPlayer[i].POS], function (error) {
+    connection.query(`INSERT INTO latestBatting(playerName,playerID, age,tm,lg,G,PA,AB,R,H,B2,B3,HR,RBI,SB,CS,BB,SO,BA,OB,SLG,OPS,OPSP,TB,GDP,HBP,SH,SF,IBB)VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`, [eachPlayer[i].playerName,eachPlayer[i].playerID, eachPlayer[i].age, eachPlayer[i].tm, eachPlayer[i].lg, eachPlayer[i].G, eachPlayer[i].PA, eachPlayer[i].AB, eachPlayer[i].R, eachPlayer[i].H, eachPlayer[i].B2, eachPlayer[i].B3, eachPlayer[i].HR, eachPlayer[i].RBI, eachPlayer[i].SB, eachPlayer[i].CS, eachPlayer[i].BB, eachPlayer[i].SO, eachPlayer[i].BA, eachPlayer[i].OB, eachPlayer[i].SLG, eachPlayer[i].OPS, eachPlayer[i].OPSP, eachPlayer[i].TB, eachPlayer[i].GDP, eachPlayer[i].HBP, eachPlayer[i].SH, eachPlayer[i].SF, eachPlayer[i].IBB], function (error) {
           if (error) throw error;
               console.log(`record ${i} added to db`)       
        });
