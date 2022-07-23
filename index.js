@@ -3,6 +3,8 @@ const express = require('express')
 const path = require('path')
 const mysql = require('mysql')
 const connection = require('./scrapers/dbConnect.js');
+
+
 const app = express()
 
 app.use(express.static(path.join(__dirname, 'client/build')));
@@ -16,13 +18,13 @@ app.get('/api/pitchsum', function(req, res) {
                     GROUP BY meta.agent
                     having COUNT(meta.playerId) > ?  AND COUNT(meta.playerId) < ?
                     ORDER BY COUNT(meta.playerId) DESC`, [parseFloat(req.query.num[0]), parseFloat(req.query.num[1])], function (error, results, fields) {
-                 
+               
     res.json(results)
     if (error) throw error;
    });
  });
 app.get('/api/batsum', function(req, res) {
-  // console.log(parseFloat(req.query.num[0]), parseFloat(req.query.num[1]))
+  // console.log(req.query)
   connection.query(`select meta.agent, COUNT(meta.playerId) as batters, FORMAT(AVG(meta.k_ann_val),0) as ann_val, FORMAT(AVG(k_yrs),1) as yrs,
                     FORMAT(AVG(latestBatting.BA),3) AS avg,
                     SUM(latestBatting.AB) as ab,
@@ -40,14 +42,15 @@ app.get('/api/batsum', function(req, res) {
    });
  });
 app.get('/api/batdetail', function(req, res) {
-  
+  console.log(req.query)
   connection.query(`select meta.playerName,meta.k_ann_val, meta.k_yrs,latestBatting.tm, latestBatting.AB, latestBatting.BA, latestBatting.TB, latestBatting.OPS 
                     from meta 
                     INNER JOIN latestBatting
                     ON meta.playerId = latestBatting.playerId
                     where agent = ?
-                    order by latestBatting.OPS DESC`, [req.query.agent], function (error, results, fields) {
+                    order by latestBatting.OPS DESC`, [req.query.batAgnt], function (error, results, fields) {
     res.json(results)
+    console.log(results)
     if (error) throw error;
    });
  });
@@ -57,7 +60,7 @@ app.get('/api/pitchdetail', function(req, res) {
                     INNER JOIN latestPitching
                     ON meta.playerId = latestPitching.playerId
                     where agent = ?
-                    order by (latestPitching.IP / latestPitching.R) DESC`, [req.query.agent], function (error, results, fields) {
+                    order by (latestPitching.IP / latestPitching.R) DESC`, [req.query.pitchAgnt], function (error, results, fields) {
     res.json(results)
     if (error) throw error;
    });
@@ -71,11 +74,3 @@ app.get('/api/allmeta', function(req, res) {
 const port = process.env.PORT || 5001;
 app.listen(port);
 console.log(`Listening on ${port}`);
-
-
-
-
-
-
-
-

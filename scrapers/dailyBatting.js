@@ -1,7 +1,8 @@
 const puppeteer = require('puppeteer');
 const connection = require('./dbConnect.js');
+const dailyPitching = require('./dailyPitching')
 
-(async () => {
+async function dailyBatting()  {
     connection.query(`TRUNCATE TABLE secondLatestBatting;
         INSERT INTO secondLatestBatting SELECT * FROM latestBatting;
         TRUNCATE TABLE latestBatting;`)
@@ -50,8 +51,13 @@ const connection = require('./dbConnect.js');
         console.log(eachPlayer[i].playerName)
     connection.query(`INSERT INTO latestBatting(playerName,playerID, age,tm,lg,G,PA,AB,R,H,B2,B3,HR,RBI,SB,CS,BB,SO,BA,OB,SLG,OPS,OPSP,TB,GDP,HBP,SH,SF,IBB)VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`, [eachPlayer[i].playerName,eachPlayer[i].playerID, eachPlayer[i].age, eachPlayer[i].tm, eachPlayer[i].lg, eachPlayer[i].G, eachPlayer[i].PA, eachPlayer[i].AB, eachPlayer[i].R, eachPlayer[i].H, eachPlayer[i].B2, eachPlayer[i].B3, eachPlayer[i].HR, eachPlayer[i].RBI, eachPlayer[i].SB, eachPlayer[i].CS, eachPlayer[i].BB, eachPlayer[i].SO, eachPlayer[i].BA, eachPlayer[i].OB, eachPlayer[i].SLG, eachPlayer[i].OPS, eachPlayer[i].OPSP, eachPlayer[i].TB, eachPlayer[i].GDP, eachPlayer[i].HBP, eachPlayer[i].SH, eachPlayer[i].SF, eachPlayer[i].IBB], function (error) {
           if (error) throw error;
-              console.log(`record ${i} added to db`)       
+              console.log(`Batting record ${i} added to db`)       
        });
     }
+    dailyPitching()
 await browser.close()
-})();
+};
+
+dailyBatting()
+
+

@@ -2,6 +2,7 @@ const puppeteer = require('puppeteer');
 const connection = require('./dbConnect.js');
 const confirmComplete = require('../helpers/nodemail.js')
 console.log(typeof connection.state)
+
 async function dailyPitching(nxt){
     var confirmObj= {}
     const browser = await puppeteer.launch({
@@ -55,7 +56,7 @@ async function dailyPitching(nxt){
     for (let i = 0; i < eachPlayer.length; i++) {
     connection.query(`INSERT INTO latestPitching(playerName,playerId,Age,Tm,Lg,W,L,G,GS,GF,CG,SHO,SV,IP,H,R,HR,BB,IBB,SO,HBP,BK,WP,BF)VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`, [eachPlayer[i].playerName, eachPlayer[i].playerID, eachPlayer[i].age, eachPlayer[i].tm, eachPlayer[i].lg, eachPlayer[i].W, eachPlayer[i].L, eachPlayer[i].G, eachPlayer[i].GS, eachPlayer[i].GF, eachPlayer[i].CG, eachPlayer[i].SHO, eachPlayer[i].SV, eachPlayer[i].IP, eachPlayer[i].H, eachPlayer[i].R, eachPlayer[i].HR, eachPlayer[i].BB, eachPlayer[i].IBB, eachPlayer[i].SO, eachPlayer[i].HBP, eachPlayer[i].BK, eachPlayer[i].WP, eachPlayer[i].BF], function (error) {
           if (error) throw error;
-              console.log(`record ${i} added to db`)       
+              console.log(`Pitching record ${i} added to db`)       
        });
     }
     confirmComplete('Pitcher parsing complete')
